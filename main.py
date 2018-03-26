@@ -96,8 +96,8 @@ def principal():
 
     
 #    mapa = Mapa()
-#    mapa.inserir_cidade(0)
-#    mapa.inserir_cidade(1)
+#    mapa.inserir_cidade(cidades[0])
+#    mapa.inserir_cidade(cidades[1])
 #    mapa.liga_cidades(busca_cidade_nome('MA', cidades))
 #    mapa.exibir()
 
