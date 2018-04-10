@@ -1,7 +1,7 @@
 from mpl_toolkits.basemap import Basemap
+import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 import numpy as np
-import Tkinter as tk
 import random
 import copy as cp
 
@@ -84,22 +84,6 @@ def distancia_total(cidades):
         total += distancia_cidade(primeira, segunda)
     return total
 
-def busca_cidade_nome(busca, cidades):
-    result = []
-    for cidade in cidades:
-        nome = cidade['nome']
-        if nome[:len(busca)] == busca:
-            result.append(cidade)
-    return result
-
-def mapa_distancias(array):
-    TAMANHO = len(array)
-    mapa_distancia = [[0 for x in range(TAMANHO)] for y in range(TAMANHO)] 
-    for i in range(TAMANHO):
-        for j in range(TAMANHO):
-            mapa_distancia[i][j] = distancia_cidade(array[i], array[j])
-    return mapa_distancia
-
 class Solucao:
     def __init__(self, cidades):
         self.cidades = cidades[:]
@@ -131,14 +115,14 @@ def principal():
 
     cidades = []
     cidades = abre_arquivo()
+    solucoes_grafico = []
+    quantidade_solucoes = 0
+
     escolhidas = []
-##    matriz_distancia = mapa_distancias(escolhidas[:])
-    de = 0
-    po = 0
     for i in range(20):
         escolhidas.append(cidades[i])
         
-    temperatura = 100000
+    temperatura = 10000
     alfa = 0.003
 
     melhor_solucao = Solucao(escolhidas)
@@ -147,56 +131,31 @@ def principal():
         cidades_linha = ordem_cidades(melhor_solucao.cidades[:])
         solucao_linha = Solucao(cidades_linha)
         
-        
         delta = melhor_solucao.distancia_total - solucao_linha.distancia_total
 
         r = random.uniform(0, 1)
         
         p = porcentagem(delta, temperatura)
 
-        if delta > 0:
+        if delta > 0 or p > r:
             melhor_solucao = solucao_linha
-            de += 1
-        elif p > r:
-            po += 1
-            melhor_solucao = solucao_linha
-            
+            solucoes_grafico.append(melhor_solucao.distancia_total)
+            quantidade_solucoes += 1
 
-        print('Temperatura: {0} -> Solucao: {1} - P: {2} - R: {3}'.format(temperatura, melhor_solucao.distancia_total, p, r))
         temperatura *= 1 - alfa
-        
-    print('Delta: {0}, Porcetagem: {1}'.format(de, po))
-    print('Melhor Solucao: {0}'.format(melhor_solucao.distancia_total))
-
-        
-##    for i in range(len(distancias)):
-##        print ''
-##        for j in range(len(distancias)):
-##            print '{0} - {1}: {2} Km'.format(cidades[i]['nome'], cidades[j]['nome'], round(distancias[i][j]))
-    
-#    print distancias
-##    root1 = tk.Tk()
-##    label = tk.Label(root1, text='our label widget')
-##    entry = tk.Entry(root1)
-##
-##    label.pack(side=tk.TOP)
-##    entry.pack()
-##    root1.mainloop()
-    
-
     
     mapa = Mapa()
-##    mapa.inserir_cidade(cidades[0])
-##    mapa.inserir_cidade(cidades[1])
-
     mapa.liga_cidades(melhor_solucao.cidades)
     mapa.exibir()
-
-##    cidade1 = cidades[0]
-##    cidade2 = cidades[1]
-##    print(cidade1)
-##    print(cidade2)
-##    print(distancia_cidade(cidade1, cidade2))
-
+    
+    eixo_x = []
+    for i in range(len(solucoes_grafico)):
+        eixo_x.append(i)
+        
+    plt.bar(eixo_x, solucoes_grafico)
+    plt.xlabel('Quantidade: {0}'.format(quantidade_solucoes))
+    plt.ylabel('Valor(Km)')
+    plt.title('Grafico de Solucoes - melhor: {0} Km'.format(melhor_solucao.distancia_total))
+    plt.show()
 
 principal()
